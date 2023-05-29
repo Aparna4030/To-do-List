@@ -1,7 +1,8 @@
 import logo from "./logo.svg";
 import "./App.css";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, InputGroup } from "react-bootstrap";
 import { useState } from "react";
+import { v4 as uuidv4 } from 'uuid';
 
 function App() {
   const [title, setTitle] = useState("");
@@ -20,15 +21,25 @@ function App() {
 
   const createtodo = (event) => {
     event.preventDefault();
-    const newTodo = { title: title, description: description, status: false };
+    event.target.reset();
+    const newTodo = { title: title, description: description, status: false, id:uuidv4()};
     setTodo((oldArray) => [...oldArray, newTodo]);
     console.log(todo);
   };
+  const handleCheckbox = (event,id) =>{
+    setTodo((oldarray) => {
+      let temp=[...oldarray]
+      temp[id]= {...temp[id],status: event.target.checked}
+      return temp
+    }) 
+    console.log(event,id)
+  }
   return (
     <div>
       <h1>To do list</h1>
       <div className="d-flex justify-content-center">
-        <Form>
+        <Form onSubmit={createtodo}>
+
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Title</Form.Label>
             <Form.Control
@@ -46,21 +57,45 @@ function App() {
               placeholder="Description"
             />
           </Form.Group>
-          <Button onClick={createtodo} variant="primary" type="submit">
+          <Button variant="primary" type="submit">
             Create
           </Button>
         </Form>
       </div>
-      {todo.map((item) => {
+
+      {todo.map((item,position) => {
         console.log(item);
-        return (
-          <div className="d-flex justify-content-center mt-3 ">
-          <div className="row">
-            <div className="col">{item.title}</div> 
-            <div className="col">{item.description}</div>
+        if (item.status===true) {
+          return(
+             <div key={item.id}>
+          <InputGroup className="mb-3">
+          <InputGroup.Checkbox onChange={(event) => handleCheckbox(event,position)}></InputGroup.Checkbox>
+          <InputGroup.Text>{item.title}</InputGroup.Text>
+          <InputGroup.Text>{item.description}</InputGroup.Text>
+          <div>Done</div>
+        </InputGroup>
+        </div>
+          )
+        } else {
+          
+          return (
+            // <div className="d-flex justify-content-center mt-3 ">
+            // <div className="row">
+  
+            //   <div className="col">{item.title}</div> 
+            //   <div className="col">{item.description}</div>
+            // </div>
+            // </div>
+            <div key={item.id}>
+            <InputGroup className="mb-3">
+            <InputGroup.Checkbox onChange={(event) => handleCheckbox(event,position)}></InputGroup.Checkbox>
+            <InputGroup.Text>{item.title}</InputGroup.Text>
+            <InputGroup.Text>{item.description}</InputGroup.Text>
+            <div>To complete</div>
+          </InputGroup>
           </div>
-          </div>
-        );
+          );
+        }
       })}
     </div>
   );
